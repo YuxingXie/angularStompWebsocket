@@ -30,6 +30,7 @@ npm i @stomp/ng2-stompjs --save
 
 程序设计得稍微复杂一点，主组件连接websocket服务器，从组件推送数据到服务器并返回响应。
 
+参考资料：https://stomp-js.github.io/guide/ng2-stompjs/2018/11/04/ng2-stomp-with-angular7.html
 
 #### 3.3.3.1.主组件
 
