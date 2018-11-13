@@ -32,18 +32,32 @@ npm i @stomp/ng2-stompjs --save
 
 参考资料：https://stomp-js.github.io/guide/ng2-stompjs/2018/11/04/ng2-stomp-with-angular7.html
 
-#### 3.3.3.1.主组件
+实际上，跟着上面参考资料上的步骤就可以实现websocket从页面推送消息到服务器，并接收服务器返回的消息的功能。所以我不再
+贴出这些步骤，只讲一讲资料上没有的东西。
 
-生成组件：
-```text
-ng g component components/connect_ws
+客户端向服务端推送：
+```javascript
+  onSendMessage() {
+    this.rxStompService.publish({destination: '/app/hello', body: `{"name":"${Math.random()}"}`});
+  }
 ```
 
-导入stompjs:
-
-src/app/components/connect-ws/connect-ws.component.ts:
-```typescript
-import {StompConfig, StompService} from '@stomp/ng2-stompjs';
-import {Observable} from 'rxjs/Observable';
-import {Message} from '@stomp/stompjs';
+服务端接收推送后返回消息：
+```javascript
+this.rxStompService.watch('/app/hello').subscribe((message: Message) => {
+      console.log('web socket get message:', message.body);
+      ...
+    });
 ```
+这里有一个细节，rxStompService的watch和publish的目的地相同，这表示什么呢？这表示客户端推送消息到服务端，如果服务端不指定发送到哪个客户端端点，
+那么客户端其实也使用和服务端相同的端点。
+
+如果服务端指定了推送到服务端的端点，比如服务端指定推送到"/topic/greetings"这个端点，客户端如何接收服务端的推送呢？方法如下：
+```javascript
+    this.rxStompService.watch('/topic/greetings').subscribe((message: Message) => {
+      console.log('web socket get message:', message.body);
+      this.receivedMessages.push(message.body);
+    });
+```
+
+客户端直接使用rxStompService.watch来监听这个端点就好了。
